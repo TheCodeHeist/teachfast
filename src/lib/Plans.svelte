@@ -27,9 +27,10 @@
 			<p class="text-white font-medium text-2xl h-full flex items-center">{plan.content}</p>
 
 			<p class="text-white font-medium text-sm h-full flex items-center mt-2">
-				{formatRelative(new Date(plan.timestamp), new Date()).replace(
-					't',
-					'T'
+				{formatRelative(new Date(plan.timestamp), new Date())
+					.substring(0, 1)
+					.toUpperCase()}{formatRelative(new Date(plan.timestamp), new Date()).substring(
+					1
 				)}&nbsp;&nbsp;•&nbsp;&nbsp;{plan.is_done ? 'Completed' : 'Not Completed'}
 			</p>
 		</div>
