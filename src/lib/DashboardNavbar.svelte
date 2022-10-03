@@ -1,8 +1,29 @@
 <script lang="ts">
+	import { currentUser } from '$lib/stores/auth';
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import FaIcon from './FaIcon.svelte';
 
 	export let current: string;
+
+	const logout = async () => {
+		try {
+			const res = await fetch('/api/logout', {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+
+			if (res.ok) {
+				if (browser) {
+					goto('/login');
+				}
+			}
+		} catch (err) {
+			console.error(err);
+		}
+	};
 </script>
 
 <nav
@@ -11,7 +32,13 @@
 	<div class="w-full h-1/6 flex flex-col items-center justify-center">
 		<p class="text-3xl text-teal-500 font-bold mb-2">TeachFast</p>
 
-		<p class="text-lg text-white"><span class="font-semibold">Logged in as: </span>Admin</p>
+		<p class="text-lg text-white">
+			<span class="font-semibold">Logged in as: </span>{!$currentUser
+				? 'Non-entity'
+				: $currentUser.username === 'admin'
+				? 'Admin'
+				: $currentUser.username}
+		</p>
 	</div>
 
 	<div class="w-full h-4/6 border-y border-neutral-700">
@@ -61,8 +88,20 @@
 		<button
 			type="button"
 			class="w-1/2 py-2 border-2 border-rose-600 rounded-lg font-semibold text-lg text-rose-600 transition-all hover:bg-rose-600 hover:text-neutral-700"
+			on:click={() => logout()}
 		>
 			<FaIcon icon="power-off" />&nbsp;&nbsp;Logout
+		</button>
+
+		<button
+			type="button"
+			class={current === 'settings'
+				? 'w-10 h-10 text-teal-500 flex items-center justify-center ml-4 transition-all'
+				: 'w-10 h-10 text-white flex items-center justify-center ml-4 transition-all hover:text-teal-500'}
+			on:click={() => goto('/dashboard/settings')}
+		>
+			<FaIcon icon="gear" className="text-lg transition-transform" />&nbsp;
+			<FaIcon icon="caret-right" />
 		</button>
 	</div>
 </nav>

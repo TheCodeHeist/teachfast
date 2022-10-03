@@ -12,10 +12,64 @@ const client = new Client({
 await client.connect();
 
 export const handle: Handle = async ({ event, resolve }) => {
-	event.locals = {
-		...event.locals,
-		pg: client
-	};
+	const { rows } = await client.query("SELECT to_regclass('users')");
 
-	return resolve(event);
+	if (rows[0].to_regclass === null) {
+		event.locals = {
+			...event.locals,
+			pg: client
+		};
+
+		return resolve(event);
+	} else {
+		const unProtectedRoutes: string[] = [
+			'/api/users/exists',
+			// '/dashboard',
+			// '/dashboard/overview',
+			// '/dashboard/settings',
+			'/',
+			'/login'
+		];
+		// unProtectedRoutes = unProtectedRoutes.slice(0, 4);
+
+		const session = event.cookies.get('teachfast_session');
+		// console.log('OK!', !unProtectedRoutes.includes(event.url.pathname));
+
+		if (!session && !unProtectedRoutes.includes(event.url.pathname)) {
+			return Response.redirect(`${event.url.origin}/login`, 307);
+		}
+
+		if (!session && unProtectedRoutes.includes(event.url.pathname)) {
+			event.locals = {
+				...event.locals,
+				pg: client,
+				currentUser: null
+			};
+
+			return resolve(event);
+		} else {
+			const currentUser = await client.query('SELECT * FROM users WHERE id = $1', [session]);
+
+			if (currentUser.rows[0]) {
+				event.locals = {
+					...event.locals,
+					pg: client,
+					currentUser: {
+						isAuthenticated: true,
+						username: currentUser.rows[0].username
+					}
+				};
+
+				return resolve(event);
+			} else {
+				event.locals = {
+					...event.locals,
+					pg: client,
+					currentUser: null
+				};
+
+				return resolve(event);
+			}
+		}
+	}
 };
