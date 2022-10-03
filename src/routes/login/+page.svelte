@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { currentUser } from '$lib/stores/auth';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import FaIcon from '$lib/FaIcon.svelte';
+	import { enhance } from '$app/forms';
 
 	if (!$page.data.exists || $currentUser) {
 		if (browser) {
@@ -13,6 +14,9 @@
 	}
 
 	let showPassword = false;
+
+	let showError = false;
+	let error = '';
 </script>
 
 <div
@@ -34,6 +38,20 @@
 		<FaIcon icon="home" />
 	</button>
 
+	{#if showError}
+		<div
+			class="flex items-start bg-red-500 px-6 py-4 w-4/12 rounded-lg select-none mb-6"
+			in:fly={{
+				x: 100,
+				duration: 300,
+				delay: 200
+			}}
+		>
+			<FaIcon icon="times" className="text-white mr-4 text-2xl" />
+			<p class="text-white text-lg font-medium flex-1">{error}</p>
+		</div>
+	{/if}
+
 	<div
 		class="flex flex-col items-center justify-center w-4/12 h-3/6 bg-neutral-900 rounded-lg shadow-lg"
 	>
@@ -42,7 +60,24 @@
 			<p class="text-xl text-white font-semibold">Login to your dashboard</p>
 		</div>
 
-		<form class="w-full flex flex-col items-center justify-center" method="POST" action="/login">
+		<form
+			class="w-full flex flex-col items-center justify-center"
+			method="POST"
+			use:enhance={({ form, data, cancel }) => {
+				return ({ result }) => {
+					if (result.type === 'invalid') {
+						error = result.data.message;
+						showError = true;
+					}
+
+					if (result.type === 'redirect') {
+						if (browser) {
+							goto('/dashboard/overview');
+						}
+					}
+				};
+			}}
+		>
 			<div class="w-4/6 flex flex-col mb-12">
 				<label for="password" class="mb-2 text-white font-semibold">Password:</label>
 				<div class="w-full flex relative">

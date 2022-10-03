@@ -3,7 +3,7 @@ import * as bcrypt from 'bcrypt';
 // import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ locals, request, cookies }) => {
+export const POST: RequestHandler = async ({ locals, request }) => {
 	// const res = await getPlans();
 	// return json(res);
 

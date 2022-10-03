@@ -6,7 +6,7 @@
 	import { fade, fly } from 'svelte/transition';
 
 	const createAdminAccount = async () => {
-		const password = prompt('Enter a password for your admin account');
+		const password = prompt('Enter a password for your admin account...');
 
 		if (password) {
 			const res = await fetch('/api/users/createAdmin', {
@@ -21,11 +21,36 @@
 			});
 
 			if (res.ok) {
-				alert('Admin account created');
+				alert('Admin account created!');
 
 				goto('/login');
 			} else {
-				alert('Error creating admin account');
+				alert('Error creating admin account!');
+			}
+		} else {
+			alert('You need to enter a password! Try again.');
+		}
+	};
+
+	const changePassword = async () => {
+		const password = prompt('Enter a new password...');
+
+		if (password) {
+			const res = await fetch('/api/users/changePassword', {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					password
+				})
+			});
+
+			if (res.ok) {
+				alert('Password changed!');
+			} else {
+				alert('Error changing password!');
 			}
 		} else {
 			alert('You need to enter a password! Try again.');
@@ -64,7 +89,7 @@
 
 				<button
 					type="button"
-					class="text-teal-600 font-bold text-lg"
+					class="text-teal-500 font-bold text-lg transition-all hover:text-teal-600"
 					on:click={() => {
 						createAdminAccount();
 					}}>Create Admin Account</button
@@ -73,6 +98,18 @@
 		{:else}
 			<p class="text-white font-medium">
 				Username: <span class="font-normal">{$currentUser.username}</span>
+			</p>
+
+			<p class="text-white font-medium">
+				Password: <span class="font-normal">@#$%^&*()</span>&nbsp;
+				<span
+					class="text-teal-500 font-bold cursor-pointer transition-all hover:text-teal-600"
+					on:click={() => {
+						changePassword();
+					}}
+				>
+					<FaIcon icon="edit" />
+				</span>
 			</p>
 		{/if}
 	</div>
