@@ -2,6 +2,13 @@
 	import { browser } from '$app/environment';
 	import { fade } from 'svelte/transition';
 	import { goto } from '$app/navigation';
+	import { io } from 'socket.io-client';
+
+	const socket = io();
+
+	socket.on('eventFromServer', (message) => {
+		console.log(message);
+	});
 </script>
 
 <div

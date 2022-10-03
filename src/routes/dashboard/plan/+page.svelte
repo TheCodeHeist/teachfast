@@ -4,10 +4,17 @@
 	import FaIcon from '$lib/FaIcon.svelte';
 	import { invalidateAll } from '$app/navigation';
 	import Plans from '$lib/Plans.svelte';
+	import { io } from 'socket.io-client';
+
+	const socket = io();
 
 	let modalOpen = false;
 
 	let planContent = '';
+
+	socket.on('plansChanged', () => {
+		invalidateAll();
+	});
 
 	const addPlan = async () => {
 		if (planContent.trim().length > 0) {
@@ -23,6 +30,8 @@
 				});
 
 				await invalidateAll();
+
+				socket.emit('plansChanged');
 			} catch (e) {
 				console.log(e);
 			}
@@ -47,6 +56,8 @@
 			});
 
 			await invalidateAll();
+
+			socket.emit('plansChanged');
 		} catch (e) {
 			console.log(e);
 		}
@@ -65,6 +76,8 @@
 			});
 
 			await invalidateAll();
+
+			socket.emit('plansChanged');
 		} catch (e) {
 			console.log(e);
 		}
@@ -77,6 +90,8 @@
 			});
 
 			await invalidateAll();
+
+			socket.emit('plansChanged');
 		} catch (e) {
 			console.log(e);
 		}
@@ -95,6 +110,8 @@
 			});
 
 			await invalidateAll();
+
+			socket.emit('plansChanged');
 		} catch (e) {
 			console.log(e);
 		}
