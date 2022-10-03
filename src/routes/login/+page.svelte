@@ -71,9 +71,7 @@
 					}
 
 					if (result.type === 'redirect') {
-						if (browser) {
-							goto('/dashboard/overview');
-						}
+						window.location.reload();
 					}
 				};
 			}}

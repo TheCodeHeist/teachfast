@@ -6,6 +6,7 @@ export const DELETE: RequestHandler = async ({ cookies }) => {
 	cookies.set('teachfast_session', '', {
 		path: '/',
 		httpOnly: true,
+		secure: false,
 		maxAge: 0
 	});
 

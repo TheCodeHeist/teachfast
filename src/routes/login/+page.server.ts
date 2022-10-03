@@ -59,6 +59,7 @@ export const actions: Actions = {
 		cookies.set('teachfast_session', rows[0].id, {
 			path: '/',
 			httpOnly: true,
+			secure: false,
 			maxAge: 60 * 60 * 24 * 1 // 1 day
 		});
 
