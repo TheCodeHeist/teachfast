@@ -1,11 +1,12 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { checkUsersTable } from '$lib/utils/users';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	// const res = await getPlans();
 	// return json(res);
 
-	const { rows } = await locals.pg.query("SELECT to_regclass('users')");
+	const { rows } = await checkUsersTable(locals.pg);
 
 	if (rows[0].to_regclass === null) {
 		return json({ exists: false });

@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { invalid, redirect, type RequestHandler } from '@sveltejs/kit';
 import type { Actions } from './$types';
+import { getUser } from '$lib/utils/users';
 
 // const Default: RequestHandler = async ({ request, cookies, locals }) => {
 // 	const form = await request.formData();
@@ -48,7 +49,7 @@ export const actions: Actions = {
 				message: 'Password must be valid!'
 			});
 
-		const { rows } = await locals.pg.query('SELECT * FROM users WHERE username = $1', ['admin']);
+		const { rows } = await getUser(locals.pg, 'admin');
 		const passwordMatch = await bcrypt.compare(password, rows[0].password);
 
 		if (!passwordMatch)

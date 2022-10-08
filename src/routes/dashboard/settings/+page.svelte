@@ -3,7 +3,11 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import FaIcon from '$lib/FaIcon.svelte';
-	import { fade, fly } from 'svelte/transition';
+	import { fade, fly, slide } from 'svelte/transition';
+
+	let changePasswordForm = false;
+	let oldPassword = '';
+	let newPassword = '';
 
 	const createAdminAccount = async () => {
 		const password = prompt('Enter a password for your admin account...');
@@ -33,9 +37,7 @@
 	};
 
 	const changePassword = async () => {
-		const password = prompt('Enter a new password...');
-
-		if (password) {
+		if (oldPassword && newPassword) {
 			const res = await fetch('/api/users/changePassword', {
 				method: 'POST',
 				credentials: 'same-origin',
@@ -43,7 +45,9 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					password
+					username: $currentUser.username,
+					oldPassword,
+					newPassword
 				})
 			});
 
@@ -53,7 +57,7 @@
 				alert('Error changing password!');
 			}
 		} else {
-			alert('You need to enter a password! Try again.');
+			alert('You need to enter both passwords! Try again.');
 		}
 	};
 </script>
@@ -105,12 +109,47 @@
 				<span
 					class="text-teal-500 font-bold cursor-pointer transition-all hover:text-teal-600"
 					on:click={() => {
-						changePassword();
+						changePasswordForm = !changePasswordForm;
 					}}
 				>
 					<FaIcon icon="edit" />
 				</span>
 			</p>
+
+			{#if changePasswordForm}
+				<div
+					class="flex flex-col mt-4"
+					transition:slide|local={{
+						duration: 300
+					}}
+				>
+					<div class="flex items-center gap-4">
+						<input
+							type="password"
+							class="bg-neutral-700 text-white rounded-md px-4 py-2 w-1/2 transition-all outline-none border border-neutral-800 focus:border-teal-400"
+							placeholder="Old Password"
+							bind:value={oldPassword}
+						/>
+						<input
+							type="password"
+							class="bg-neutral-700 text-white rounded-md px-4 py-2 w-1/2 transition-all outline-none border border-neutral-800 focus:border-teal-400"
+							placeholder="New Password"
+							bind:value={newPassword}
+						/>
+					</div>
+
+					<button
+						type="button"
+						class="bg-teal-500 text-white rounded-md px-4 py-2 mt-4 transition-all hover:bg-teal-600"
+						on:click={() => {
+							changePassword();
+						}}
+					>
+						<FaIcon icon="save" className="mr-2" />
+						Change Password
+					</button>
+				</div>
+			{/if}
 		{/if}
 	</div>
 </section>

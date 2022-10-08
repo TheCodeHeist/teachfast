@@ -2,20 +2,13 @@ import * as bcrypt from 'bcrypt';
 // import * as jwt from 'jsonwebtoken';
 // import { dev } from '$app/environment';
 import type { RequestHandler } from './$types';
+import { createUser, createUsersTable } from '$lib/utils/users';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
 	// const res = await getPlans();
 	// return json(res);
 
-	// CREATE TABLE users (
-	// 	id uuid PRIMARY KEY,
-	// 	username varchar(20) UNIQUE NOT NULL,
-	// 	password varchar(20) NOT NULL
-	// );
-
-	await locals.pg.query(
-		'CREATE TABLE IF NOT EXISTS users (id uuid PRIMARY KEY, username varchar(100) UNIQUE NOT NULL, password varchar(100) NOT NULL)'
-	);
+	await createUsersTable(locals.pg);
 
 	const { password } = await request.json();
 
@@ -24,10 +17,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const user_id = crypto.randomUUID();
 
 	try {
-		const { rows } = await locals.pg.query(
-			'INSERT INTO users (id, username, password) VALUES ($1, $2, $3) RETURNING *',
-			[user_id, 'admin', hashedPassword]
-		);
+		const { rows } = await createUser(locals.pg, user_id, 'admin', hashedPassword);
 
 		return new Response(JSON.stringify(rows), {
 			status: 200,

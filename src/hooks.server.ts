@@ -1,6 +1,7 @@
+import { createPlansTable } from '$lib/utils/plans';
+import { checkUsersTable } from '$lib/utils/users';
 import type { Handle } from '@sveltejs/kit';
 import { Client } from 'pg';
-import { createPlansTable } from './lib/utils/plans';
 
 const client = new Client({
 	host: 'localhost',
@@ -15,7 +16,7 @@ await client.connect();
 export const handle: Handle = async ({ event, resolve }) => {
 	await createPlansTable(client);
 
-	const { rows } = await client.query("SELECT to_regclass('users')");
+	const { rows } = await checkUsersTable(client);
 
 	if (rows[0].to_regclass === null) {
 		event.locals = {
